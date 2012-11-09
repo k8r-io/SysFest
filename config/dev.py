@@ -1,0 +1,8 @@
+DEBUG=True
+
+
+DB_MODULE='data.mongo'
+DB_CLASS='MongoFest'
+MONGODB_DATABASE='SysFest'
+MONGODB_HOST='localhost'
+MONGODB_PORT=27017

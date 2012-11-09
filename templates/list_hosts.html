@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block body %}
+	<table>
+	<th>Hostname</th><th>Description</th>
+	{% for host in hosts %}
+		<tr><td>{{ host.hostname }}</td><td>Coming soon.</td>
+	{% endfor %}
+	</table>
+{% endblock %}
