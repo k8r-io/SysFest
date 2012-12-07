@@ -14,8 +14,13 @@ class MongoFest(BaseDB):
 	def __init__(self,app):
 		self.conn = Connection(app.config['MONGODB_HOST'],app.config['MONGODB_PORT'])	
 		self.conn.register(Host)
-	def find(self):
-		return self.conn.sysfest.Host.find()
+	def find(self,hostname=''):
+		if hostname == '':
+			return self.conn.sysfest.Host.find()
+		else:
+			return self.conn.sysfest.Host.find({'hostname':hostname})
+	def find_one(self,hostname):
+			return self.conn.sysfest.Host.find_one({'hostname':hostname})
 	def close(self):
 		self.conn.disconnect()
 		

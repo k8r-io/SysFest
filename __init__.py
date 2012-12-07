@@ -1,6 +1,7 @@
-from flask import Flask,g,render_template
+from flask import Flask,g,render_template,request,send_file,Response
 from data import BaseDB
 from os import environ
+import json
 app = Flask(__name__)
 app.config.from_object("sysfest.config")
 if 'SYSFEST_CONFIG' in environ:
@@ -23,11 +24,22 @@ def close_db(exception):
 
 
 @app.route('/')
-@app.route('/hosts')
+def index():
+	return send_file(filename_or_fp='static/index.html')
+
+@app.route('/host',methods=['GET'])
+@app.route('/host/',methods=['GET'])
 def list_all():
 	hosts = g.db.find()
-	return render_template('list_hosts.html',hosts=hosts)
+	data = ""
+	for h in hosts:
+		data += h.to_json()
+	resp = Response(data, status=200,mimetype='application/json')
+	return resp
 
-@app.route('/hosts/<hostname>')
-def show_host(): pass
+@app.route('/host/<hostname>',methods=['GET'])
+def show_host(hostname): 
+	host = g.db.find_one(hostname=hostname)
+	data = host.to_json()
+	return Response(data, status=200,mimetype='application/json')
 
