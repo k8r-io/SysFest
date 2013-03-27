@@ -20,7 +20,6 @@ app.logger.addHandler(file_handler)
 app.logger.removeHandler(stderr)
 
 
-
 @app.before_request
 def open_db(): 
 	g.db =  MongoFest(app)
@@ -38,13 +37,17 @@ def index():
 @app.route('/host/',methods=['GET'])
 def list_all():
 	hosts = g.db.find()
-	data = "["+",".join([ h.to_json() for h in hosts ])+"]"
-	resp = Response(data, status=200,mimetype='application/json')
+	payload = {}
+	payload['hosts'] = [ h.to_json() for h in hosts ]
+	payload['ok']=1
+	resp = Response(json.dumps(payload), status=200,mimetype='application/json')
 	return resp
 
 @app.route('/host/<hostname>',methods=['GET'])
 def show_host(hostname): 
 	host = g.db.find_one(hostname=hostname)
-	data = host.to_json()
-	return Response(data, status=200,mimetype='application/json')
+	payload['host'] = host.to_json()
+	payload['ok']=1
+	resp = Response(json.dumps(payload), status=200,mimetype='application/json')
+	return resp
 
