@@ -1,22 +1,29 @@
 from flask import Flask,g,render_template,request,send_file,Response
 from data import BaseDB
 from os import environ
+from data.mongo import MongoFest
 import json
+import logging
+from logging import FileHandler, StreamHandler;
+
 app = Flask(__name__)
-app.config.from_object("sysfest.config")
+stderr = StreamHandler()
+app.logger.addHandler(stderr)
 if 'SYSFEST_CONFIG' in environ:
 	app.config.from_object(environ['SYSFEST_CONFIG'])
+else:
+	app.logger.critical("No SYSFEST_CONFIG environment variable found!")
+	
+file_handler = FileHandler(app.config["LOG_PATH"]+"sysfest.log")
+file_handler.setLevel(logging.WARNING)
+app.logger.addHandler(file_handler)
+app.logger.removeHandler(stderr)
+
 
 
 @app.before_request
 def open_db(): 
-		if 'DB_MODULE' in app.config and 'DB_CLASS' in app.config:
-				_temp = __import__(app.config['DB_MODULE'],globals(),locals(),[app.config['DB_CLASS']],-1)
-				db_class = getattr(_temp,app.config['DB_CLASS'])
-				g.db = db_class(app)
-		else:
-				g.db = BaseDB(app)
-	
+	g.db =  MongoFest(app)
 
 @app.teardown_request
 def close_db(exception): 
@@ -31,9 +38,7 @@ def index():
 @app.route('/host/',methods=['GET'])
 def list_all():
 	hosts = g.db.find()
-	data = ""
-	for h in hosts:
-		data += h.to_json()
+	data = "["+",".join([ h.to_json() for h in hosts ])+"]"
 	resp = Response(data, status=200,mimetype='application/json')
 	return resp
 
