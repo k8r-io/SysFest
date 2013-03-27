@@ -29,10 +29,6 @@ def close_db(exception):
 	g.db.close()
 
 
-@app.route('/')
-def index():
-	return send_file(filename_or_fp='static/index.html')
-
 @app.route('/host',methods=['GET'])
 @app.route('/host/',methods=['GET'])
 def list_all():
