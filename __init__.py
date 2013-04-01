@@ -3,7 +3,6 @@ from data import BaseDB
 from os import environ
 from data.mongo import MongoFest
 import json
-from bson import json_util
 import bson
 import logging
 from logging import FileHandler, StreamHandler;
@@ -47,7 +46,8 @@ def list_all():
 @app.route('/host/<hostname>',methods=['GET'])
 def show_host(hostname): 
 	host = g.db.find_one(hostname=hostname)
-	payload['host'] = host.to_json()
+	payload = {}
+	payload['host'] = _clean_oid(host)
 	payload['ok']=1
 	resp = Response(json.dumps(payload), status=200,mimetype='application/json')
 	return resp
