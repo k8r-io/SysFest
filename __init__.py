@@ -3,6 +3,8 @@ from data import BaseDB
 from os import environ
 from data.mongo import MongoFest
 import json
+from bson import json_util
+import bson
 import logging
 from logging import FileHandler, StreamHandler;
 
@@ -15,10 +17,14 @@ else:
 	app.logger.critical("No SYSFEST_CONFIG environment variable found!")
 	
 file_handler = FileHandler(app.config["LOG_PATH"]+"sysfest.log")
-file_handler.setLevel(logging.WARNING)
+file_handler.setLevel(logging.DEBUG)
 app.logger.addHandler(file_handler)
 app.logger.removeHandler(stderr)
 
+def _clean_oid(host):
+	if isinstance(host["_id"], bson.objectid.ObjectId):
+		host["_id"]={"_oid":str(host["_id"])}
+	return host
 
 @app.before_request
 def open_db(): 
@@ -28,13 +34,12 @@ def open_db():
 def close_db(exception): 
 	g.db.close()
 
-
 @app.route('/host',methods=['GET'])
 @app.route('/host/',methods=['GET'])
 def list_all():
 	hosts = g.db.find()
 	payload = {}
-	payload['hosts'] = [ h.to_json() for h in hosts ]
+	payload['hosts'] = [ _clean_oid(h) for h in hosts ]
 	payload['ok']=1
 	resp = Response(json.dumps(payload), status=200,mimetype='application/json')
 	return resp

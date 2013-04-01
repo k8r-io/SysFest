@@ -7,7 +7,7 @@ class Host(Document):
 	structure = {
 		'hostname': unicode,
 		'description': unicode,
-		'homes': [ {'ip':unicode,'hostnames':[unicode]} ],
+		'homes': [ {'ip':unicode,'hostnames':[{'val': unicode}]} ],
 		'tags' : [ unicode ] }
 	
 class MongoFest(BaseDB):
