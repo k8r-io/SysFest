@@ -25,14 +25,15 @@ class MongoFest(BaseDB):
 	def find_one(self,host_id):
 		return self._clean_oid(self.conn.sysfest.Host.find_one({'_id':bson.objectid.ObjectId(host_id)}))
 	def update(self,host_id,values):
-		self.conn.sysfest.Host.update("_id":ObjectId(host_id),{"$set":values})
+		self.conn.sysfest.hosts.update({"_id":bson.objectid.ObjectId(host_id)},{"$set":values})
+		return self.find_one(host_id)
 
 	def close(self):
 		self.conn.disconnect()
 
 	def _clean_oid(self,host):
 		if isinstance(host["_id"], bson.objectid.ObjectId):
-			host["_id"]={"_oid":str(host["_id"])}
+			host["_id"]=str(host["_id"])
 		return host
 		
 

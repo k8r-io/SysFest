@@ -35,6 +35,17 @@ def list_all():
 	resp = Response(json.dumps(hosts), status=200,mimetype='application/json')
 	return resp
 
+@app.route('/host',methods=['POST'])
+def update_host(): 
+	data = request.json
+	host_id = data["_id"]
+	data.pop("_id")
+	host = g.db.update(host_id=host_id,values=data)
+	app.logger.error(host)
+
+	resp = Response(json.dumps(host),status=200,mimetype='application/json')
+	return resp
+
 @app.route('/host/hostname/<hostname>',methods=['GET'])
 def find_by_hostname(hostname): 
 	hosts = g.db.find(hostname=hostname)
@@ -48,8 +59,4 @@ def show_host(host_id):
 	resp = Response(json.dumps(host), status=200,mimetype='application/json')
 	return resp
 
-@app.route('/host/<host_id>',methods=['POST'])
-def update_host(host_id): 
-	app.logger.error(host_id)
-	
-	return resp
+
