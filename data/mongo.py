@@ -23,10 +23,18 @@ class MongoFest(BaseDB):
 			regx = re.compile(hostname)
 			return [ self._clean_oid(h) for h in self.conn.sysfest.Host.find({"$or":[{'hostname':regx},{'homes.hostnames.val':regx}]}) ]
 	def find_one(self,host_id):
-		return self._clean_oid(self.conn.sysfest.Host.find_one({'_id':bson.objectid.ObjectId(host_id)}))
+		if isinstance(host_id, str):
+			host_id=bson.objectid.ObjectId(host_id)
+		host = self._clean_oid(self.conn.sysfest.Host.find_one({'_id':host_id}))
+		return host
 	def update(self,host_id,values):
 		self.conn.sysfest.hosts.update({"_id":bson.objectid.ObjectId(host_id)},{"$set":values})
 		return self.find_one(host_id)
+	def create(self,values):
+		oid = self.conn.sysfest.hosts.insert(values)
+		return self.find_one(host_id=oid)
+	def delete(self,host_id):
+		return self.conn.sysfest.hosts.remove({'_id':bson.objectid.ObjectId(host_id)})
 
 	def close(self):
 		self.conn.disconnect()

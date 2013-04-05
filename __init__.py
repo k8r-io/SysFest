@@ -29,7 +29,6 @@ def close_db(exception):
 	g.db.close()
 
 @app.route('/host',methods=['GET'])
-@app.route('/host/',methods=['GET'])
 def list_all():
 	hosts = g.db.find()
 	resp = Response(json.dumps(hosts), status=200,mimetype='application/json')
@@ -38,10 +37,12 @@ def list_all():
 @app.route('/host',methods=['POST'])
 def update_host(): 
 	data = request.json
-	host_id = data["_id"]
-	data.pop("_id")
-	host = g.db.update(host_id=host_id,values=data)
-	app.logger.error(host)
+	if "_id" in data:
+		host_id = data["_id"]
+		data.pop("_id")
+		host = g.db.update(host_id=host_id,values=data)
+	else:
+		host = g.db.create(data)
 
 	resp = Response(json.dumps(host),status=200,mimetype='application/json')
 	return resp
@@ -59,4 +60,9 @@ def show_host(host_id):
 	resp = Response(json.dumps(host), status=200,mimetype='application/json')
 	return resp
 
+@app.route('/host/<host_id>',methods=['DELETE'])
+def show_host(host_id): 
+	g.db.delete(host_id=host_id)
+	resp = Response("", status=200,mimetype='application/json')
+	return resp
 
