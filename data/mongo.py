@@ -1,5 +1,7 @@
 from mongokit import Connection, Document
 from sysfest.data import BaseDB
+import re
+import bson
 
 class Host(Document):
 	__collection__ = 'hosts'
@@ -7,7 +9,7 @@ class Host(Document):
 	structure = {
 		'hostname': unicode,
 		'description': unicode,
-		'homes': [ {'ip':unicode,'hostnames':[{'val': unicode}]} ],
+		'homes': [ {'name':unicode,'ip':unicode,'hostnames':[{'val': unicode}]} ],
 		'tags' : [ unicode ] }
 	
 class MongoFest(BaseDB):
@@ -16,12 +18,21 @@ class MongoFest(BaseDB):
 		self.conn.register(Host)
 	def find(self,hostname=''):
 		if hostname == '':
-			return self.conn.sysfest.Host.find()
-		else:
-			return self.conn.sysfest.Host.find({'hostname':hostname})
-	def find_one(self,hostname):
-			return self.conn.sysfest.Host.find_one({'hostname':hostname})
+			return [ self._clean_oid(h) for h in self.conn.sysfest.Host.find() ]
+		elif hostname != '':
+			regx = re.compile(hostname)
+			return [ self._clean_oid(h) for h in self.conn.sysfest.Host.find({"$or":[{'hostname':regx},{'homes.hostnames.val':regx}]}) ]
+	def find_one(self,host_id):
+		return self._clean_oid(self.conn.sysfest.Host.find_one({'_id':bson.objectid.ObjectId(host_id)}))
+	def update(self,host_id,values):
+		self.conn.sysfest.Host.update("_id":ObjectId(host_id),{"$set":values})
+
 	def close(self):
 		self.conn.disconnect()
+
+	def _clean_oid(self,host):
+		if isinstance(host["_id"], bson.objectid.ObjectId):
+			host["_id"]={"_oid":str(host["_id"])}
+		return host
 		
 

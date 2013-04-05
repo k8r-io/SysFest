@@ -3,7 +3,6 @@ from data import BaseDB
 from os import environ
 from data.mongo import MongoFest
 import json
-import bson
 import logging
 from logging import FileHandler, StreamHandler;
 
@@ -20,10 +19,6 @@ file_handler.setLevel(logging.DEBUG)
 app.logger.addHandler(file_handler)
 app.logger.removeHandler(stderr)
 
-def _clean_oid(host):
-	if isinstance(host["_id"], bson.objectid.ObjectId):
-		host["_id"]={"_oid":str(host["_id"])}
-	return host
 
 @app.before_request
 def open_db(): 
@@ -37,18 +32,24 @@ def close_db(exception):
 @app.route('/host/',methods=['GET'])
 def list_all():
 	hosts = g.db.find()
-	payload = {}
-	payload['hosts'] = [ _clean_oid(h) for h in hosts ]
-	payload['ok']=1
-	resp = Response(json.dumps(payload), status=200,mimetype='application/json')
+	resp = Response(json.dumps(hosts), status=200,mimetype='application/json')
 	return resp
 
-@app.route('/host/<hostname>',methods=['GET'])
-def show_host(hostname): 
-	host = g.db.find_one(hostname=hostname)
-	payload = {}
-	payload['host'] = _clean_oid(host)
-	payload['ok']=1
-	resp = Response(json.dumps(payload), status=200,mimetype='application/json')
+@app.route('/host/hostname/<hostname>',methods=['GET'])
+def find_by_hostname(hostname): 
+	hosts = g.db.find(hostname=hostname)
+	resp = Response(json.dumps(hosts), status=200,mimetype='application/json')
 	return resp
 
+
+@app.route('/host/<host_id>',methods=['GET'])
+def show_host(host_id): 
+	host = g.db.find_one(host_id=host_id)
+	resp = Response(json.dumps(host), status=200,mimetype='application/json')
+	return resp
+
+@app.route('/host/<host_id>',methods=['POST'])
+def update_host(host_id): 
+	app.logger.error(host_id)
+	
+	return resp
