@@ -9,15 +9,16 @@ from logging import FileHandler, StreamHandler;
 app = Flask(__name__)
 stderr = StreamHandler()
 app.logger.addHandler(stderr)
+app.config.from_object('sysfest.default_config')
 if 'SYSFEST_CONFIG' in environ:
-	app.config.from_object(environ['SYSFEST_CONFIG'])
-else:
-	app.logger.critical("No SYSFEST_CONFIG environment variable found!")
+	app.config.from_envvar('SYSFEST_CONFIG')
 	
-file_handler = FileHandler(app.config["LOG_PATH"]+"sysfest.log")
-file_handler.setLevel(logging.DEBUG)
-app.logger.addHandler(file_handler)
 app.logger.removeHandler(stderr)
+
+if 'LOG_FILE' in app.config and app.config['LOG_FILE'] != '':
+	file_handler = FileHandler(app.config["LOG_FILE"])
+	file_handler.setLevel(logging.DEBUG)
+	app.logger.addHandler(file_handler)
 
 
 @app.before_request

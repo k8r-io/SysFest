@@ -1,1 +1,0 @@
-SERVERNAME='michael.asciiduck.com'
