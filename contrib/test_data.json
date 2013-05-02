@@ -1,0 +1,32 @@
+[
+{"hostname":"diablo.asciiduck.com",
+ "description":"Lord of Terror",
+ "tags":["evil","boss","act4"],
+ "homes":[
+     {"name":"eth0",
+      "ip":"192.168.66.1",
+      "hostnames":[{"val":"diablo.asciiduck.com"},{"val":"web.asciiduck.com"}]
+      }
+    ]
+},
+{"hostname":"mephisto.asciiduck.com",
+ "description":"Lord of Hatred",
+ "tags":["evil","boss","act3"],
+ "homes":[
+     {"name":"eth0",
+      "ip":"192.168.66.2",
+      "hostnames":[{"val":"mephisto.asciiduck.com"},{"val":"mail.asciiduck.com"}]
+      }
+    ]
+},
+{"hostname":"baal.asciiduck.com",
+ "description":"Lord of Destruction",
+ "tags":["evil","boss","act5"],
+ "homes":[
+     {"name":"eth0",
+      "ip":"192.168.66.3",
+      "hostnames":[{"val":"baal.asciiduck.com"},{"val":"db.asciiduck.com"}]
+      }
+    ]
+}
+]
