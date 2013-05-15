@@ -62,7 +62,7 @@ def show_host(host_id):
 	return resp
 
 @app.route('/host/<host_id>',methods=['DELETE'])
-def show_host(host_id): 
+def delete_host(host_id): 
 	g.db.delete(host_id=host_id)
 	resp = Response("", status=200,mimetype='application/json')
 	return resp
