@@ -23,7 +23,7 @@ class MongoFest(BaseDB):
 			regx = re.compile(hostname)
 			return [ self._clean_oid(h) for h in self.conn.sysfest.Host.find({"$or":[{'hostname':regx},{'homes.hostnames.val':regx}]}) ]
 	def find_one(self,host_id):
-		if isinstance(host_id, str):
+		if isinstance(host_id, basestring):
 			host_id=bson.objectid.ObjectId(host_id)
 		host = self._clean_oid(self.conn.sysfest.Host.find_one({'_id':host_id}))
 		return host
@@ -40,7 +40,7 @@ class MongoFest(BaseDB):
 		self.conn.disconnect()
 
 	def _clean_oid(self,host):
-		if isinstance(host["_id"], bson.objectid.ObjectId):
+		if host is not None and isinstance(host["_id"], bson.objectid.ObjectId):
 			host["_id"]=str(host["_id"])
 		return host
 		
