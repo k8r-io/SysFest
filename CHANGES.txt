@@ -1,1 +1,2 @@
 v0.1.0, 2013-04-14 -- Initial release
+v0.1.1, 2013-06-12 -- Changes the nature of config files, bug fixes.
