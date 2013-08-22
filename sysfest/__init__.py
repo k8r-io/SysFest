@@ -31,7 +31,11 @@ def close_db(exception):
 
 @app.route('/host',methods=['GET'])
 def list_all():
-	hosts = g.db.find()
+	if "query" in request.args:
+		hosts = g.db.search(query=request.args["query"])
+	else:
+		hosts = g.db.find()
+
 	resp = Response(json.dumps(hosts), status=200,mimetype='application/json')
 	return resp
 
@@ -53,7 +57,6 @@ def find_by_hostname(hostname):
 	hosts = g.db.find(hostname=hostname)
 	resp = Response(json.dumps(hosts), status=200,mimetype='application/json')
 	return resp
-
 
 @app.route('/host/<host_id>',methods=['GET'])
 def show_host(host_id): 
