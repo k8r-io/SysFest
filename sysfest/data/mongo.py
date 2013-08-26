@@ -16,12 +16,25 @@ class MongoFest(BaseDB):
 	def __init__(self,app):
 		self.conn = Connection(app.config['MONGODB_HOST'],app.config['MONGODB_PORT'])	
 		self.conn.register(Host)
-	def find(self,hostname=''):
+		self.logger = app.logger
+	def find(self,hostname='',tags=''):
 		if hostname == '':
 			return [ self._clean_oid(h) for h in self.conn.sysfest.Host.find() ]
 		elif hostname != '':
 			regx = re.compile(hostname)
 			return [ self._clean_oid(h) for h in self.conn.sysfest.Host.find({"$or":[{'hostname':regx},{'homes.hostnames.val':regx}]}) ]
+	def search(self,query):
+		tag_pattern = re.compile('tag:(\w+)')
+		tags = tag_pattern.findall(query)
+		query = tag_pattern.sub('',query)
+		hostnames = query.split(' ')
+		terms = [{"$or":[{'hostname':re.compile(x)},{'homes.hostnames.val':re.compile(x)}]} for x in hostnames]
+		
+		if tags: #pythonic (moronic) way to check if an array is empty
+			terms = terms + [{"tags":{"$all":tags}}]
+
+		return [ self._clean_oid(h) for h in self.conn.sysfest.Host.find({"$and":terms}) ]
+
 	def find_one(self,host_id):
 		if isinstance(host_id, basestring):
 			host_id=bson.objectid.ObjectId(host_id)
