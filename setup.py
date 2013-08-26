@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
 	name='SysFest',
-	version='0.1.1',
+	version='0.1.2',
 	author='Kristopher Kirkland',
 	author_email='kirkland@umn.edu',
 	packages=['sysfest','sysfest.data'],
