@@ -1,5 +1,6 @@
 from mongokit import Connection, Document
 from sysfest.data import BaseDB
+import pymongo
 import re
 import bson
 
@@ -19,10 +20,10 @@ class MongoFest(BaseDB):
 		self.logger = app.logger
 	def find(self,hostname='',tags=''):
 		if hostname == '':
-			return [ self._clean_oid(h) for h in self.conn.sysfest.Host.find() ]
+			return [ self._clean_oid(h) for h in self.conn.sysfest.Host.find().sort("hostname", pymongo.ASCENDING) ]
 		elif hostname != '':
 			regx = re.compile(hostname)
-			return [ self._clean_oid(h) for h in self.conn.sysfest.Host.find({"$or":[{'hostname':regx},{'homes.hostnames.val':regx}]}) ]
+			return [ self._clean_oid(h) for h in self.conn.sysfest.Host.find({"$or":[{'hostname':regx},{'homes.hostnames.val':regx}]}).sort("uid", pymongo.DESCENDING) ]
 	def search(self,query):
 		tag_pattern = re.compile('tag:(\w+)')
 		tags = tag_pattern.findall(query)
@@ -33,7 +34,7 @@ class MongoFest(BaseDB):
 		if tags: #pythonic (moronic) way to check if an array is empty
 			terms = terms + [{"tags":{"$all":tags}}]
 
-		return [ self._clean_oid(h) for h in self.conn.sysfest.Host.find({"$and":terms}) ]
+		return [ self._clean_oid(h) for h in self.conn.sysfest.Host.find({"$and":terms}).sort("uid", pymongo.DESCENDING) ]
 
 	def find_one(self,host_id):
 		if isinstance(host_id, basestring):
