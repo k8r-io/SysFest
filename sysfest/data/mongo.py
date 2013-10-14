@@ -26,10 +26,17 @@ class MongoFest(BaseDB):
 			return [ self._clean_oid(h) for h in self.conn.sysfest.Host.find({"$or":[{'hostname':regx},{'homes.hostnames.val':regx}]}).sort("hostname", pymongo.ASCENDING) ]
 	def search(self,query):
 		tag_pattern = re.compile('tag:(\w+)')
+		host_pattern = re.compile('host:([\w\.-]+)')
 		tags = tag_pattern.findall(query)
+		hosts = host_pattern.findall(query)
 		query = tag_pattern.sub('',query)
-		hostnames = query.split(' ')
-		terms = [{"$or":[{'hostname':re.compile(x)},{'homes.hostnames.val':re.compile(x)}]} for x in hostnames]
+		query = host_pattern.sub('',query)
+		key_words = query.split(' ')
+
+		terms = [ {"description":re.compile(x,flags=re.I)} for x in key_words]
+
+		if hosts:
+			terms = terms + [{"$or":[{'hostname':re.compile(x)},{'homes.hostnames.val':re.compile(x)}]} for x in hosts]
 		
 		if tags: #pythonic (moronic) way to check if an array is empty
 			terms = terms + [{"tags":{"$all":tags}}]
