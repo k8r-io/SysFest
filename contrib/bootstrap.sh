@@ -162,6 +162,9 @@ echo "<VirtualHost *:80>
     EnableSendfile Off
 </VirtualHost>" | tee /etc/httpd/conf.d/sysfest.conf
 
+chmod 755 /var/log/httpd
+touch /var/www/sysfest/sysfest.conf
+
 service httpd restart
 chkconfig httpd on
 service mongod restart
